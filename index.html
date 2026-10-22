@@ -55,7 +55,7 @@
         }
         .auth-btn:active { transform: scale(0.97); }
 
-        /* Asosiy Menyu (Faqat Admin uchun) */
+        /* Asosiy Menyu */
         #menuScreen {
             background: radial-gradient(circle at 50% 30%, #0a1628 0%, #050b14 60%, #020408 100%);
             align-items: center; justify-content: center; padding: 24px; text-align: center;
@@ -324,7 +324,6 @@
         let lastLat = 41.2995, lastLng = 69.2401; // Toshkent default
         let isMapInitializedOnce = false;
 
-        // BOSH admin kalit so'zi (Faqat shu kiritilsagina Admin menyusi ochiladi)
         const ADMIN_KEY = "ADMIN_MASTER"; 
 
         function handleAuth() {
@@ -333,16 +332,12 @@
 
             currentUser = val;
             
-            // Faqat va faqat ADMIN_MASTER kiritilsa Admin bo'lib kiradi
             if (currentUser === ADMIN_KEY) {
                 isAdmin = true;
                 currentUser = "ADMIN";
                 startMenu();
             } else {
-                // Abdulla, bekzod va barcha boshqa nomlar - oddiy foydalanuvchi!
                 isAdmin = false;
-                
-                // Darhol foydalanuvchini bazaga yozib xaritaga o'tkaziladi
                 updateUserLocation(currentUser, lastLat, lastLng);
                 openMapScreen();
             }
@@ -487,7 +482,6 @@
                 maxZoom: 18, maxNativeZoom: 18, opacity: 0.8
             }).addTo(map);
 
-            // Xaritaga bosganda joylashuvni belgilash
             map.on('click', function(e) {
                 let targetLat = e.latlng.lat;
                 let targetLng = e.latlng.lng;
@@ -496,11 +490,9 @@
                     lastLat = targetLat;
                     lastLng = targetLng;
                     updateUserLocation(currentUser, lastLat, lastLng);
-                    alert("Joylashuvingiz xaritadan belgilandi va adminga yuborildi!");
                     return;
                 }
 
-                // Admin uchun masofa o'lchash
                 let myLat = lastLat, myLng = lastLng;
                 let selectedUser = document.getElementById('userListSelect').value;
                 if (selectedUser && markers[selectedUser]) {
@@ -541,13 +533,14 @@
 
             if (!isAdmin) {
                 if ("geolocation" in navigator) {
-                    navigator.geolocation.watchPosition(pos => {
+                    navigator.geolocation.getCurrentPosition(pos => {
                         lastLat = pos.coords.latitude;
                         lastLng = pos.coords.longitude;
+                        map.setView([lastLat, lastLng], 17);
                         updateUserLocation(currentUser, lastLat, lastLng);
                     }, err => {
                         updateUserLocation(currentUser, lastLat, lastLng);
-                    }, { enableHighAccuracy: true, maximumAge: 0 });
+                    }, { enableHighAccuracy: true, timeout: 5000 });
                 } else {
                     updateUserLocation(currentUser, lastLat, lastLng);
                 }
@@ -574,7 +567,6 @@
             }
         }
 
-        // Firebase va LocalStorage ikkalasiga birdek yozish
         function updateUserLocation(username, lat, lng) {
             let userObj = {
                 lat: lat,
@@ -582,10 +574,8 @@
                 time: new Date().toLocaleTimeString()
             };
             
-            // Firebase
             db.ref('locations/' + username).set(userObj);
 
-            // LocalStorage backup
             try {
                 let localData = JSON.parse(localStorage.getItem('gps_all_users_loc') || '{}');
                 localData[username] = userObj;
@@ -610,13 +600,10 @@
             }
         }
 
-        // Admin uchun barcha foydalanuvchilarni eshitish va ro'yxatni chiqarish
         function listenAllUsers() {
-            // Firebase orqali eshitish
             db.ref('locations').on('value', snapshot => {
                 let allLocations = snapshot.val() || {};
                 
-                // LocalStorage'dan ham birlashtiramiz
                 try {
                     let localData = JSON.parse(localStorage.getItem('gps_all_users_loc') || '{}');
                     allLocations = { ...localData, ...allLocations };
