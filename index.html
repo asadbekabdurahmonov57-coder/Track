@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -27,13 +27,6 @@
         .screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         .active-screen { display: flex; flex-direction: column; }
 
-        /* Auth Screen */
-        #authScreen {
-            background: radial-gradient(circle at 50% 30%, #0d1b2a 0%, #090d16 60%, #030508 100%);
-            z-index: 9999;
-            align-items: center; justify-content: center; padding: 20px;
-        }
-
         .leaflet-tile-pane { filter: saturate(1.35) contrast(1.15) brightness(1.02); }
 
         .gps-center-btn {
@@ -47,7 +40,7 @@
         }
         .gps-center-btn:active { transform: scale(0.9); }
 
-        /* 0.5s Fast Pulse Animation */
+        /* Fast Pulse Marker Animation */
         .pulse-marker-container { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; position: relative; }
         .pulse-dot { width: 20px; height: 20px; background: #00e676; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 0 12px rgba(0, 230, 118, 0.9); z-index: 2; }
         .pulse-ring { position: absolute; width: 44px; height: 44px; background: rgba(0, 230, 118, 0.5); border-radius: 50%; animation: fast-pulse-animation 0.5s infinite linear; z-index: 1; }
@@ -73,7 +66,6 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 230, 118, 0); }
         }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: rgba(5, 10, 20, 0.5); }
         ::-webkit-scrollbar-thumb { background: rgba(0, 230, 118, 0.3); border-radius: 4px; }
@@ -81,89 +73,86 @@
 </head>
 <body>
 
-    <!-- Notification Modal -->
+    <!-- Message Modal -->
     <div id="modalBox" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[10000] hidden flex items-center justify-center p-4">
         <div class="bg-gray-900 border border-green-500/30 rounded-2xl p-6 max-w-xs w-full text-center shadow-2xl">
             <i id="modalIcon" class="fa-solid fa-circle-info text-3xl text-green-400 mb-3 block"></i>
-            <p id="modalMessage" class="text-gray-200 text-sm mb-5 font-medium">Xabar matni</p>
-            <button onclick="closeModal()" class="w-full py-2.5 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl text-sm transition">OK</button>
+            <p id="modalMessage" class="text-gray-200 text-sm mb-5 font-medium">Xabar</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-green-500 hover:bg-green-400 text-black font-bold rounded-xl text-sm transition">Tushunarli</button>
         </div>
     </div>
 
-    <!-- 1. Kirish Oynasi -->
-    <div id="authScreen" class="screen active-screen">
+    <!-- 1. AUTH SCREEN (SIMPLE & CLEAN) -->
+    <div id="authScreen" class="screen active-screen items-center justify-center p-5 bg-gradient-to-b from-slate-950 via-gray-950 to-black">
         <div class="bg-slate-900/90 backdrop-blur-md border border-cyan-500/20 p-8 rounded-3xl w-full max-w-sm text-center shadow-2xl">
             <div class="w-16 h-16 bg-green-500/10 border border-green-500/30 rounded-2xl mx-auto flex items-center justify-center mb-4">
                 <i class="fa-solid fa-shield-halved text-2xl text-green-400"></i>
             </div>
             <h2 class="text-xl font-bold text-green-400 mb-1">Xavfsizlik Tizimi</h2>
-            <p class="text-xs text-gray-400 mb-6">Real-vaqt rejimida xavfsizlik trekeri</p>
+            <p class="text-xs text-gray-400 mb-6">Real-vaqt rejimida joylashuv kuzatuvchisi</p>
 
-            <div class="text-left mb-4">
-                <label class="block text-xs font-semibold text-blue-300 mb-1.5"><i class="fa-solid fa-user text-green-400"></i> Foydalanuvchi nomi</label>
-                <input type="text" id="usernameInput" placeholder="Masalan: Anvar yoki admin..." class="w-full px-4 py-3 bg-gray-950/90 border border-cyan-500/30 rounded-xl text-white text-sm outline-none focus:border-green-400 transition">
+            <div class="text-left mb-6">
+                <label class="block text-xs font-semibold text-blue-300 mb-2">
+                    <i class="fa-solid fa-user-tag text-green-400 mr-1"></i> Taxallusingizni (Nik) kiriting:
+                </label>
+                <input type="text" id="usernameInput" placeholder="Masalan: Sardor" class="w-full px-4 py-3 bg-gray-950/90 border border-cyan-500/30 rounded-xl text-white text-sm outline-none focus:border-green-400 transition shadow-inner">
             </div>
 
-            <p class="text-[11px] text-gray-500 mb-5 text-left bg-gray-950/50 p-2.5 rounded-lg border border-gray-800">
-                <i class="fa-solid fa-key text-yellow-500 mr-1"></i> Admin bo'lib kirish uchun: <code class="text-green-400 font-mono">admin_master_key_999</code>
-            </p>
-
             <button onclick="handleAuth()" class="w-full py-3.5 bg-gradient-to-r from-green-600 to-green-400 text-black font-bold text-sm rounded-xl flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition shadow-lg shadow-green-500/20">
-                <i class="fa-solid fa-right-to-bracket"></i> Tizimga kirish
+                <i class="fa-solid fa-right-to-bracket"></i> Kirish
             </button>
         </div>
     </div>
 
-    <!-- 2. Asosiy Menyu -->
-    <div id="menuScreen" class="screen bg-gradient-to-b from-slate-950 via-gray-950 to-black items-center justify-center p-6">
+    <!-- 2. ADMIN MENU (Faqat ADMIN nik bilan kirilganda chiqadi) -->
+    <div id="adminMenuScreen" class="screen bg-gradient-to-b from-slate-950 via-gray-950 to-black items-center justify-center p-6">
         <div class="w-full max-w-sm flex flex-col gap-3">
-            <div class="bg-gray-900/80 border border-green-500/20 p-4 rounded-2xl flex items-center justify-between mb-2 backdrop-blur-md">
+            <div class="bg-gray-900/90 border border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between mb-2 backdrop-blur-md">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-green-500/20 border border-green-400/40 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-user text-lg text-green-400"></i>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
+                        <i class="fa-solid fa-user-shield text-lg text-emerald-400"></i>
                     </div>
                     <div>
-                        <div class="text-xs text-gray-400">Xush kelibsiz</div>
-                        <div id="menuUserName" class="font-bold text-white text-sm">--</div>
+                        <div class="text-[10px] text-gray-400">Tizim Administratori</div>
+                        <div class="font-bold text-emerald-400 text-sm">ADMIN</div>
                     </div>
                 </div>
-                <span id="roleBadge" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">User</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">ADMIN</span>
             </div>
 
-            <button onclick="openMapScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg backdrop-blur-md text-left">
+            <button onclick="openMapScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg text-left">
                 <i class="fa-solid fa-globe text-green-400 text-lg w-6 text-center"></i>
                 <div>
-                    <div>Online Kuzatuv</div>
-                    <div class="text-[11px] text-gray-400 font-normal">Xaritada Jonli Geolokatsiya</div>
+                    <div>Online Kuzatuv Xaritasi</div>
+                    <div class="text-[11px] text-gray-400 font-normal">Barcha foydalanuvchilar joylashuvi</div>
                 </div>
             </button>
 
-            <!-- Admin uchun Foydalanuvchilar Paneli -->
-            <button id="adminUsersPanelBtn" onclick="openUserPanelScreen()" class="p-4 bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/40 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-emerald-400 active:scale-95 transition shadow-lg backdrop-blur-md text-left hidden">
+            <button onclick="openUserPanelScreen()" class="p-4 bg-gradient-to-r from-emerald-950/80 to-slate-900 border border-emerald-500/40 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-emerald-400 active:scale-95 transition shadow-lg text-left">
                 <i class="fa-solid fa-users-gear text-emerald-400 text-lg w-6 text-center"></i>
                 <div>
-                    <div class="text-emerald-300 font-bold">Foydalanuvchilar Paneli</div>
-                    <div class="text-[11px] text-emerald-400/70 font-normal">Jonli Qurilmalarni Boshqarish</div>
+                    <div class="text-emerald-300 font-bold">Foydalanuvchilar Ro'yxati</div>
+                    <div class="text-[11px] text-emerald-400/70 font-normal">Jonli qurilmalarni ko'rish & kuzatish</div>
                 </div>
             </button>
 
-            <button onclick="openCameraScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg backdrop-blur-md text-left">
+            <button onclick="openCameraScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg text-left">
                 <i class="fa-solid fa-camera text-green-400 text-lg w-6 text-center"></i>
                 <div>
-                    <div>Kamera Ulanish</div>
-                    <div class="text-[11px] text-gray-400 font-normal">Masofaviy Videokamera Stream</div>
+                    <div>Kamera Sinovi</div>
+                    <div class="text-[11px] text-gray-400 font-normal">Videokamera ulanish sinovi</div>
                 </div>
             </button>
 
-            <button onclick="openMicScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg backdrop-blur-md text-left">
+            <button onclick="openMicScreen()" class="p-4 bg-gradient-to-r from-slate-900 to-gray-900 border border-cyan-500/20 rounded-2xl text-white text-sm font-semibold flex items-center gap-4 hover:border-green-400/40 active:scale-95 transition shadow-lg text-left">
                 <i class="fa-solid fa-microphone text-green-400 text-lg w-6 text-center"></i>
                 <div>
-                    <div>Atrofni Eshitish</div>
-                    <div class="text-[11px] text-gray-400 font-normal">Mikrofon va Muloqot</div>
+                    <div>Mikrofon Sinovi</div>
+                    <div class="text-[11px] text-gray-400 font-normal">Audio tinglash sinovi</div>
                 </div>
             </button>
 
-            <button onclick="logout()" class="p-4 bg-gradient-to-r from-red-950/80 to-red-900/60 border border-red-500/30 rounded-2xl text-red-200 text-sm font-semibold flex items-center gap-4 hover:bg-red-900 active:scale-95 transition shadow-lg mt-2 backdrop-blur-md text-left">
+            <button onclick="logout()" class="p-4 bg-gradient-to-r from-red-950/80 to-red-900/60 border border-red-500/30 rounded-2xl text-red-200 text-sm font-semibold flex items-center gap-4 hover:bg-red-900 active:scale-95 transition shadow-lg mt-2 text-left">
                 <i class="fa-solid fa-arrow-right-from-bracket text-red-400 text-lg w-6 text-center"></i>
                 <div>
                     <div>Tizimdan Chiqish</div>
@@ -173,19 +162,19 @@
         </div>
     </div>
 
-    <!-- 3. Admin Foydalanuvchilar Paneli Oynasi -->
+    <!-- 3. ADMIN USER PANEL (Foydalanuvchilar ro'yxati) -->
     <div id="userPanelScreen" class="screen bg-slate-950 p-4 overflow-y-auto">
         <div class="max-w-md mx-auto w-full pb-10">
             <div class="bg-gray-900/90 backdrop-blur-md border border-emerald-500/30 p-4 rounded-2xl flex items-center justify-between mb-4 sticky top-0 z-50 shadow-xl">
                 <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
                     <i class="fa-solid fa-users-gear text-lg"></i> Foydalanuvchilar Paneli
                 </div>
-                <button onclick="openMenuScreen()" class="px-3 py-1.5 bg-gray-800 text-gray-200 text-xs font-semibold rounded-xl border border-gray-700 flex items-center gap-1.5 active:scale-95 transition">
+                <button onclick="openAdminMenu()" class="px-3 py-1.5 bg-gray-800 text-gray-200 text-xs font-semibold rounded-xl border border-gray-700 flex items-center gap-1.5 active:scale-95 transition">
                     <i class="fa-solid fa-house"></i> Menyu
                 </button>
             </div>
 
-            <p class="text-xs text-gray-400 mb-3 px-1">Faol qurilmalar va ularni masofaviy boshqarish:</p>
+            <p class="text-xs text-gray-400 mb-3 px-1">Tizimdagi faol foydalanuvchilar. Ustiga bosib joylashuvini ko'ring:</p>
 
             <div id="usersListContainer" class="flex flex-col gap-3">
                 <div class="text-center py-10 text-gray-500 text-xs">
@@ -195,17 +184,23 @@
         </div>
     </div>
 
-    <!-- 4. Xarita Oynasi -->
+    <!-- 4. MAP SCREEN (Foydalanuvchi to'g'ridan-to'g'ri shu yerga tushadi) -->
     <div id="mapScreen" class="screen relative w-full h-full">
         <div class="absolute top-4 left-4 right-4 z-[1000] bg-gray-900/90 backdrop-blur-md p-4 rounded-2xl border border-cyan-500/25 shadow-2xl">
             <div class="flex justify-between items-center text-xs mb-2">
                 <span class="text-gray-300 font-medium flex items-center gap-1.5">
-                    <i class="fa-solid fa-user-tag text-green-400"></i> <strong id="mapUserName" class="text-green-400">--</strong>
+                    <i class="fa-solid fa-user-tag text-green-400"></i> Nik: <strong id="mapUserName" class="text-green-400">--</strong>
                 </span>
-                <button onclick="openMenuScreen()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
-                    <i class="fa-solid fa-house"></i> Menyu
-                </button>
+                <div class="flex items-center gap-2">
+                    <button id="navBackBtn" onclick="openAdminMenu()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition hidden">
+                        <i class="fa-solid fa-house"></i> Menyu
+                    </button>
+                    <button onclick="logout()" class="px-3 py-1.5 bg-red-950/80 text-red-200 border border-red-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
+                        <i class="fa-solid fa-right-from-bracket"></i> Chiqish
+                    </button>
+                </div>
             </div>
+            
             <div class="flex justify-between items-center text-xs">
                 <span class="flex items-center text-gray-300">
                     <i class="fa-solid fa-route text-cyan-400 mr-1.5"></i> Masofa: 
@@ -216,11 +211,12 @@
                 <span id="distanceText" class="text-red-400 font-bold">Metka qo'yilmagan</span>
             </div>
             
-            <div id="adminPanel" class="mt-3 pt-2 border-t border-cyan-500/20 hidden">
+            <!-- Faqat ADMIN xaritasida chiqadigan tanlov paneli -->
+            <div id="adminMapControls" class="mt-3 pt-2 border-t border-cyan-500/20 hidden">
                 <div class="flex items-center text-xs font-bold text-amber-400 mb-1">
-                    <i class="fa-solid fa-user-shield mr-1.5"></i> Admin Kuzatuv Paneli
+                    <i class="fa-solid fa-user-shield mr-1.5"></i> Foydalanuvchini tanlang:
                 </div>
-                <select id="userListSelect" onchange="focusUserOnMap()" class="w-full p-2.5 bg-gray-950 text-white border border-cyan-500/30 rounded-xl text-xs outline-none">
+                <select id="userListSelect" onchange="focusUserOnMapFromSelect()" class="w-full p-2.5 bg-gray-950 text-white border border-cyan-500/30 rounded-xl text-xs outline-none">
                     <option value="">Barcha foydalanuvchilar</option>
                 </select>
             </div>
@@ -232,19 +228,19 @@
         <div id="map" class="w-full h-full absolute top-0 left-0 z-0"></div>
     </div>
 
-    <!-- 5. Kamera Ulanish Oynasi -->
+    <!-- 5. KAMERA SINOV OYNASI (ADMIN) -->
     <div id="cameraScreen" class="screen bg-slate-950 p-4 overflow-y-auto">
         <div class="bg-gray-900/90 backdrop-blur-md border border-cyan-500/25 p-4 rounded-2xl flex items-center justify-between mb-6 max-w-md mx-auto w-full">
-            <span class="text-xs font-bold text-green-400 flex items-center gap-2"><i class="fa-solid fa-video"></i> Kamera Stream</span>
-            <button onclick="openMenuScreen()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
+            <span class="text-xs font-bold text-green-400 flex items-center gap-2"><i class="fa-solid fa-video"></i> Kamera Sinovi</span>
+            <button onclick="openAdminMenu()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
                 <i class="fa-solid fa-house"></i> Menyu
             </button>
         </div>
 
         <div class="max-w-md mx-auto w-full pt-4">
             <div class="bg-gray-900/80 backdrop-blur-md border border-cyan-500/20 rounded-2xl p-6 text-center shadow-xl">
-                <h4 class="text-green-400 font-bold text-base flex items-center justify-center gap-2"><i class="fa-solid fa-camera-rotate"></i> Videokamera Ulanishi</h4>
-                <p class="text-xs text-blue-300 mt-1">Jonli kamera translatsiyasini uzatish / ko'rish</p>
+                <h4 class="text-green-400 font-bold text-base flex items-center justify-center gap-2"><i class="fa-solid fa-camera-rotate"></i> Videokamera</h4>
+                <p class="text-xs text-blue-300 mt-1">Lokal qurilma kamerasini tekshirish</p>
                 
                 <div class="w-full h-60 bg-black rounded-xl mt-4 border border-dashed border-green-400 flex items-center justify-center overflow-hidden relative">
                     <video id="cameraPreview" autoplay playsinline class="w-full h-full object-cover"></video>
@@ -266,19 +262,19 @@
         </div>
     </div>
 
-    <!-- 6. Muloqotni Tinglash Oynasi -->
+    <!-- 6. MIKROFON SINOV OYNASI (ADMIN) -->
     <div id="micScreen" class="screen bg-slate-950 p-4 overflow-y-auto">
         <div class="bg-gray-900/90 backdrop-blur-md border border-cyan-500/25 p-4 rounded-2xl flex items-center justify-between mb-6 max-w-md mx-auto w-full">
-            <span class="text-xs font-bold text-green-400 flex items-center gap-2"><i class="fa-solid fa-microphone-lines"></i> Mikrofon</span>
-            <button onclick="openMenuScreen()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
+            <span class="text-xs font-bold text-green-400 flex items-center gap-2"><i class="fa-solid fa-microphone-lines"></i> Mikrofon Sinovi</span>
+            <button onclick="openAdminMenu()" class="px-3 py-1.5 bg-slate-800 text-white border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition">
                 <i class="fa-solid fa-house"></i> Menyu
             </button>
         </div>
 
         <div class="max-w-md mx-auto w-full pt-4">
             <div class="bg-gray-900/80 backdrop-blur-md border border-cyan-500/20 rounded-2xl p-6 text-center shadow-xl">
-                <h4 class="text-green-400 font-bold text-base flex items-center justify-center gap-2"><i class="fa-solid fa-ear-listen"></i> Atrofni Tinglash</h4>
-                <p class="text-xs text-blue-300 mt-1">Mikrofon orqali audio signal qabul qilish</p>
+                <h4 class="text-green-400 font-bold text-base flex items-center justify-center gap-2"><i class="fa-solid fa-ear-listen"></i> Mikrofon Sinovi</h4>
+                <p class="text-xs text-blue-300 mt-1">Audio kirish va mikrofonni tekshirish</p>
                 
                 <div class="mic-wave-box">
                     <i class="fa-solid fa-microphone"></i>
@@ -297,13 +293,13 @@
         </div>
     </div>
 
-    <!-- Firebase Module Setup -->
+    <!-- Firebase Real-time Integration -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'anti-theft-tracker-default';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'anti-theft-tracker-app';
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyDummyKeyForFallbackOnly",
             authDomain: "fallback.firebaseapp.com",
@@ -319,7 +315,6 @@
 
         let currentUserAuth = null;
 
-        // Global Firestore helpers for sync across PC and Mobile
         window.dbSync = {
             db,
             appId,
@@ -337,17 +332,15 @@
                     currentUserAuth = cred.user;
                 }
 
-                // Listen to online users collection
-                const publicUsersRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
-                onSnapshot(publicUsersRef, (snapshot) => {
+                // Listen to live locations
+                const locationsRef = collection(db, 'artifacts', appId, 'public', 'data', 'locations');
+                onSnapshot(locationsRef, (snapshot) => {
                     const usersData = {};
                     snapshot.forEach((docSnap) => {
                         usersData[docSnap.id] = docSnap.data();
                     });
                     window.handleCloudUsersUpdate(usersData);
-                }, (error) => {
-                    console.error("Firestore sync error:", error);
-                });
+                }, (err) => console.error("Sync error:", err));
             },
 
             async sendLocation(username, lat, lng) {
@@ -359,24 +352,10 @@
                         lat: lat,
                         lng: lng,
                         updatedAt: new Date().toLocaleTimeString(),
-                        timestamp: Date.now(),
-                        status: 'online'
+                        timestamp: Date.now()
                     }, { merge: true });
                 } catch (e) {
-                    console.error("Error sending GPS:", e);
-                }
-            },
-
-            async sendCameraCommand(targetUser, command) {
-                if (!currentUserAuth || !targetUser) return;
-                try {
-                    const userDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'locations', targetUser);
-                    await updateDoc(userDocRef, {
-                        cameraCommand: command,
-                        commandTimestamp: Date.now()
-                    });
-                } catch(e) {
-                    console.error("Error sending camera command:", e);
+                    console.error("GPS send error:", e);
                 }
             }
         };
@@ -396,8 +375,6 @@
         let isMapInitializedOnce = false;
         let gpsWatchId = null;
 
-        const ADMIN_SECRET_KEY = "admin_master_key_999"; 
-
         function showModal(msg, icon = 'fa-circle-info') {
             document.getElementById('modalMessage').innerText = msg;
             document.getElementById('modalIcon').className = `fa-solid ${icon} text-3xl text-green-400 mb-3 block`;
@@ -409,41 +386,34 @@
         }
 
         function handleAuth() {
-            const val = document.getElementById('usernameInput').value.trim();
-            if (!val) { 
-                showModal("Iltimos, foydalanuvchi nomini kiriting!", "fa-circle-exclamation"); 
+            const inputVal = document.getElementById('usernameInput').value.trim();
+            if (!inputVal) { 
+                showModal("Iltimos, taxallusingizni (Nik) kiriting!", "fa-circle-exclamation"); 
                 return; 
             }
 
-            if (val === ADMIN_SECRET_KEY) {
+            currentUser = inputVal;
+            
+            // ADMIN bo'lib kirilganligini tekshirish (Case-insensitive)
+            if (currentUser.toUpperCase() === "ADMIN") {
                 isAdmin = true;
                 currentUser = "ADMIN";
+                openAdminMenu();
             } else {
                 isAdmin = false;
-                currentUser = val;
+                // Oddiy foydalanuvchi TO'G'RITAN-TO'G'RI XARITAGA o'tadi
+                openMapScreen();
             }
 
-            startMenu();
             startGPSReporting();
         }
 
-        function startMenu() {
+        function openAdminMenu() {
+            if (!isAdmin) return;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('menuScreen').classList.add('active-screen');
-            document.getElementById('menuUserName').innerText = currentUser;
-
-            const badge = document.getElementById('roleBadge');
-            const adminUsersBtn = document.getElementById('adminUsersPanelBtn');
-
-            if (isAdmin) {
-                badge.innerText = "ADMIN";
-                badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
-                adminUsersBtn.classList.remove('hidden');
-            } else {
-                badge.innerText = "USER";
-                badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30";
-                adminUsersBtn.classList.add('hidden');
-            }
+            document.getElementById('adminMenuScreen').classList.add('active-screen');
+            stopCameraStream();
+            stopMicStream();
         }
 
         function logout() {
@@ -452,13 +422,7 @@
             isAdmin = false;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('authScreen').classList.add('active-screen');
-            stopCameraStream();
-            stopMicStream();
-        }
-
-        function openMenuScreen() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('menuScreen').classList.add('active-screen');
+            document.getElementById('usernameInput').value = '';
             stopCameraStream();
             stopMicStream();
         }
@@ -468,10 +432,15 @@
             document.getElementById('mapScreen').classList.add('active-screen');
             document.getElementById('mapUserName').innerText = currentUser;
 
+            const backBtn = document.getElementById('navBackBtn');
+            const adminControls = document.getElementById('adminMapControls');
+
             if (isAdmin) {
-                document.getElementById('adminPanel').classList.remove('hidden');
+                backBtn.classList.remove('hidden');
+                adminControls.classList.remove('hidden');
             } else {
-                document.getElementById('adminPanel').classList.add('hidden');
+                backBtn.classList.add('hidden');
+                adminControls.classList.add('hidden');
             }
 
             if (!map) {
@@ -488,11 +457,13 @@
         }
 
         function openCameraScreen() {
+            if (!isAdmin) return;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('cameraScreen').classList.add('active-screen');
         }
 
         function openMicScreen() {
+            if (!isAdmin) return;
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('micScreen').classList.add('active-screen');
         }
@@ -525,7 +496,7 @@
             navigator.mediaDevices.getUserMedia({ audio: true, video: false })
                 .then(stream => {
                     micStream = stream;
-                    statusText.innerText = "Holat: Jonli efirda tinglanmoqda...";
+                    statusText.innerText = "Holat: Mikrofon faol va ishlamoqda...";
                     statusText.style.color = "#00e676";
                 })
                 .catch(err => showModal("Mikrofonga ruxsat berilmadi: " + err.message, "fa-microphone-slash"));
@@ -572,7 +543,7 @@
                 maxZoom: 18, maxNativeZoom: 18, opacity: 0.8
             }).addTo(map);
 
-            // Masofa o'lchash kodi
+            // Masofa o'lchash
             map.on('click', function(e) {
                 let targetLat = e.latlng.lat;
                 let targetLng = e.latlng.lng;
@@ -633,12 +604,11 @@
                     lastLat = pos.coords.latitude;
                     lastLng = pos.coords.longitude;
 
-                    // Send location to Firebase in real-time
                     if (window.dbSync && window.dbSync.sendLocation) {
                         window.dbSync.sendLocation(currentUser, lastLat, lastLng);
                     }
                 }, err => {
-                    console.warn("GPS error:", err);
+                    console.warn("GPS watch error:", err);
                 }, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
             }
         }
@@ -655,12 +625,12 @@
                 if (selectedUser && markers[selectedUser]) {
                     map.setView(markers[selectedUser].getLatLng(), 17);
                 } else {
-                    showModal("Iltimos, kuzatmoqchi bo'lgan foydalanuvchini tanlang!", "fa-hand-pointer");
+                    showModal("Iltimos, foydalanuvchini tanlang!", "fa-hand-pointer");
                 }
             }
         }
 
-        // Called when cloud users update via Firestore
+        // Firebase-dan foydalanuvchilar kelganda ishlaydi
         window.handleCloudUsersUpdate = function(usersData) {
             const select = document.getElementById('userListSelect');
             const userPanelContainer = document.getElementById('usersListContainer');
@@ -675,12 +645,12 @@
                 userCount++;
                 let u = usersData[uname];
 
-                // Update marker on Leaflet Map
+                // Leaflet xaritasida marker belgilash
                 if (map) {
                     if (!markers[uname]) {
                         markers[uname] = L.marker([u.lat, u.lng], { icon: createPulseIcon() })
                             .addTo(map)
-                            .bindPopup(`<b>${uname}</b><br><span style="font-size:10px; color:#8ab4f8">${u.updatedAt || ''}</span>`);
+                            .bindPopup(`<b>${uname}</b><br><span style="font-size:10px; color:#8ab4f8">Vaqti: ${u.updatedAt || ''}</span>`);
 
                         if (!isMapInitializedOnce && uname === currentUser && !isAdmin) {
                             map.setView([u.lat, u.lng], 17);
@@ -691,7 +661,7 @@
                     }
                 }
 
-                // Fill Admin Select dropdown
+                // Admin select menyusini to'ldirish
                 if (select) {
                     let opt = document.createElement('option');
                     opt.value = uname;
@@ -699,36 +669,30 @@
                     select.appendChild(opt);
                 }
 
-                // Build User Card inside Admin Panel
+                // Admin Paneli ro'yxatida card hosil qilish
                 if (userPanelContainer) {
                     const userCard = document.createElement('div');
-                    userCard.className = "bg-gray-900/90 border border-emerald-500/20 p-4 rounded-2xl flex flex-col gap-3 shadow-lg";
+                    userCard.className = "bg-gray-900/90 border border-emerald-500/20 p-4 rounded-2xl flex flex-col gap-3 shadow-lg hover:border-emerald-400 transition cursor-pointer";
+                    userCard.onclick = () => focusUserFromPanel(uname);
+                    
                     userCard.innerHTML = `
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold text-xs">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 font-bold text-sm">
                                     <i class="fa-solid fa-mobile-screen"></i>
                                 </div>
                                 <div>
                                     <div class="text-sm font-bold text-white">${uname}</div>
-                                    <div class="text-[10px] text-gray-400">Vaqti: ${u.updatedAt || 'Noma\'lum'}</div>
+                                    <div class="text-[10px] text-gray-400">Oxirgi vaqt: ${u.updatedAt || 'Noma\'lum'}</div>
                                 </div>
                             </div>
-                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 flex items-center gap-1">
                                 <i class="fa-solid fa-circle text-[6px] animate-pulse"></i> Online
                             </span>
                         </div>
-                        <div class="text-xs text-gray-400 font-mono bg-black/50 p-2 rounded-lg border border-gray-800 flex justify-between">
-                            <span>Lat: ${u.lat ? u.lat.toFixed(5) : '--'}</span>
-                            <span>Lng: ${u.lng ? u.lng.toFixed(5) : '--'}</span>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 mt-1">
-                            <button onclick="focusUserFromPanel('${uname}')" class="py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold text-xs rounded-xl border border-cyan-500/30 flex items-center justify-center gap-1.5 transition">
-                                <i class="fa-solid fa-location-dot"></i> Xaritada Ko'rish
-                            </button>
-                            <button onclick="triggerRemoteCam('${uname}')" class="py-2 bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-semibold text-xs rounded-xl border border-emerald-500/30 flex items-center justify-center gap-1.5 transition">
-                                <i class="fa-solid fa-camera"></i> Kamera
-                            </button>
+                        <div class="text-xs text-emerald-400/90 font-semibold bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-500/20 flex justify-between items-center">
+                            <span><i class="fa-solid fa-location-dot mr-1"></i> Joylashuvini ko'rish</span>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
                         </div>
                     `;
                     userPanelContainer.appendChild(userCard);
@@ -742,7 +706,7 @@
             }
         };
 
-        function focusUserOnMap() {
+        function focusUserOnMapFromSelect() {
             let selectedUser = document.getElementById('userListSelect').value;
             if (selectedUser && markers[selectedUser]) {
                 map.setView(markers[selectedUser].getLatLng(), 17);
@@ -757,12 +721,9 @@
                     map.setView(markers[username].getLatLng(), 17);
                     markers[username].openPopup();
                 }
+                const select = document.getElementById('userListSelect');
+                if (select) select.value = username;
             }, 300);
-        };
-
-        window.triggerRemoteCam = function(username) {
-            openCameraScreen();
-            showModal(`${username} qurilmasining kamerasi bilan ulanish o'rnatilmoqda...`, "fa-camera");
         };
     </script>
 </body>
