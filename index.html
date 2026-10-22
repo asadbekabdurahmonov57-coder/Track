@@ -177,7 +177,7 @@
             <h2><i class="fa-solid fa-shield-halved"></i> Tizimga Kirish</h2>
             <div class="input-group">
                 <label><i class="fa-solid fa-user"></i> Taxallusingizni (Nik) kiriting:</label>
-                <input type="text" id="usernameInput" placeholder="Masalan: Bekzod yoki ADMIN">
+                <input type="text" id="usernameInput" placeholder="Masalan: Abdulla yoki ADMIN">
             </div>
             <button class="auth-btn" onclick="handleAuth()">
                 <i class="fa-solid fa-right-to-bracket"></i> Kirish
@@ -228,6 +228,7 @@
                 <span id="distanceText" style="color:#ff5252; font-weight: bold;">Metka qo'yilmagan</span>
             </div>
             
+            <!-- Admin Paneldagi Foydalanuvchilar Ro'yxati -->
             <div id="adminPanel" class="admin-box" style="display: none;">
                 <div class="info" style="color: #ff9800; font-weight: bold;">
                     <span><i class="fa-solid fa-user-shield"></i> Foydalanuvchilar Ro'yxati</span>
@@ -253,20 +254,9 @@
                     <i class="fa-solid fa-house"></i> Menyu
                 </button>
             </div>
-            <div id="adminGalleryBox" class="admin-box">
-                <div class="info" style="color: #ff9800; font-weight: bold;">
-                    <span><i class="fa-solid fa-user-gear"></i> Admin Galareya Boshqaruvi</span>
-                </div>
-                <select id="galleryUserSelect" class="user-select" onchange="loadSelectedUserGallery()">
-                    <option value="">Foydalanuvchini tanlang</option>
-                </select>
-            </div>
         </div>
-
         <div class="container-box">
-            <h4 style="font-size: 14px; color: #00e676; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-sync fa-spin"></i> Sinxronlangan galereya rasmlari:
-            </h4>
+            <h4 style="font-size: 14px; color: #00e676; margin-bottom: 10px;"><i class="fa-solid fa-sync fa-spin"></i> Galareya rasmlari:</h4>
             <div class="gallery-grid" id="galleryGrid"></div>
         </div>
     </div>
@@ -281,17 +271,13 @@
                 </button>
             </div>
         </div>
-
         <div class="container-box">
             <div class="view-card">
                 <h4 style="color: #00e676; font-size: 16px;"><i class="fa-solid fa-camera-rotate"></i> Masofaviy Kamera</h4>
-                <p style="font-size: 12px; color: #8ab4f8; margin-top: 4px;">Foydalanuvchi kamerasiga ulanish</p>
-                
                 <div class="live-camera-frame">
                     <video id="cameraPreview" autoplay playsinline></video>
                     <div id="cameraPlaceholder" style="color: #666; font-size: 13px;">Kamera o'chiq</div>
                 </div>
-
                 <button class="auth-btn" style="margin-top: 15px;" onclick="startRemoteCamera()">
                     <i class="fa-solid fa-play"></i> Kamerani Yoqish
                 </button>
@@ -299,7 +285,7 @@
         </div>
     </div>
 
-    <!-- 6. Muloqotni Tinglash (Mikrofon) Oynasi -->
+    <!-- 6. Muloqotni Tinglash Oynasi -->
     <div id="micScreen" class="screen">
         <div class="panel">
             <div class="info">
@@ -309,17 +295,11 @@
                 </button>
             </div>
         </div>
-
         <div class="container-box">
             <div class="view-card">
                 <h4 style="color: #00e676; font-size: 16px;"><i class="fa-solid fa-ear-listen"></i> Atrofni Eshitish</h4>
-                <p style="font-size: 12px; color: #8ab4f8; margin-top: 4px;">Telefon mikrofonini masofadan yoqish va tinglash</p>
-                
-                <div class="mic-wave-box">
-                    <i class="fa-solid fa-microphone"></i>
-                </div>
+                <div class="mic-wave-box"><i class="fa-solid fa-microphone"></i></div>
                 <p id="micStatusText" style="font-size: 13px; color: #8ab4f8; margin-bottom: 15px;">Holat: O'chiq</p>
-
                 <button class="auth-btn" onclick="startRemoteMicrophone()">
                     <i class="fa-solid fa-volume-high"></i> Tinglashni Boshlash
                 </button>
@@ -342,7 +322,7 @@
         let distanceLine = null;
         let currentUser = null;
         let isAdmin = false;
-        let lastLat = null, lastLng = null;
+        let lastLat = 41.2995, lastLng = 69.2401; // Boshlang'ich Toshkent koordinatasi
         let isMapInitializedOnce = false;
 
         function handleAuth() {
@@ -355,6 +335,8 @@
                 startMenu();
             } else {
                 isAdmin = false;
+                // Foydalanuvchi bazaga darhol yoziladi
+                updateUserLocation(currentUser, lastLat, lastLng);
                 openMapScreen();
             }
         }
@@ -411,7 +393,6 @@
         function openGalleryScreen() {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById('galleryScreen').classList.add('active-screen');
-            populateGalleryUserSelect();
         }
 
         function openCameraScreen() {
@@ -467,30 +448,6 @@
             }
         }
 
-        function renderGalleryImages(username) {
-            let grid = document.getElementById('galleryGrid');
-            grid.innerHTML = "<p style='color:#8ab4f8; grid-column: span 3; text-align:center;'>Rasmlar topilmadi</p>";
-        }
-
-        function populateGalleryUserSelect() {
-            let select = document.getElementById('galleryUserSelect');
-            select.innerHTML = '<option value="">Foydalanuvchini tanlang</option>';
-            db.ref('locations').once('value', snapshot => {
-                let data = snapshot.val() || {};
-                for (let uname in data) {
-                    let opt = document.createElement('option');
-                    opt.value = uname;
-                    opt.innerText = uname;
-                    select.appendChild(opt);
-                }
-            });
-        }
-
-        function loadSelectedUserGallery() {
-            let selectedUser = document.getElementById('galleryUserSelect').value;
-            if (selectedUser) renderGalleryImages(selectedUser);
-        }
-
         function createPulseIcon() {
             return L.divIcon({
                 className: 'pulse-marker',
@@ -513,7 +470,7 @@
         }
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([41.2995, 69.2401], 15);
+            map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([lastLat, lastLng], 15);
 
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 18, maxNativeZoom: 18, attribution: '© Esri Satellite'
@@ -523,7 +480,7 @@
                 maxZoom: 18, maxNativeZoom: 18, opacity: 0.8
             }).addTo(map);
 
-            // Xaritaga bosganda joylashuvni yangilash yoki masofa o'lchash
+            // Xaritaga bosganda o'z joylashuvini yangilash (Kompyuter va telefon uchun qulaylik)
             map.on('click', function(e) {
                 let targetLat = e.latlng.lat;
                 let targetLng = e.latlng.lng;
@@ -532,18 +489,17 @@
                     lastLat = targetLat;
                     lastLng = targetLng;
                     updateUserLocation(currentUser, lastLat, lastLng);
-                    alert("Joylashuvingiz xaritadan belgilandi!");
+                    alert("Joylashuvingiz xaritadan belgilandi va adminga yuborildi!");
                     return;
                 }
 
+                // Admin uchun masofa o'lchash
                 let myLat = lastLat, myLng = lastLng;
                 let selectedUser = document.getElementById('userListSelect').value;
                 if (selectedUser && markers[selectedUser]) {
                     let pos = markers[selectedUser].getLatLng();
                     myLat = pos.lat;
                     myLng = pos.lng;
-                } else if (lastLat === null) {
-                    myLat = 41.2995; myLng = 69.2401;
                 }
 
                 if (clickedMarker) map.removeLayer(clickedMarker);
@@ -583,11 +539,9 @@
                         lastLng = pos.coords.longitude;
                         updateUserLocation(currentUser, lastLat, lastLng);
                     }, err => {
-                        lastLat = 41.2995; lastLng = 69.2401;
                         updateUserLocation(currentUser, lastLat, lastLng);
                     }, { enableHighAccuracy: true, maximumAge: 0 });
                 } else {
-                    lastLat = 41.2995; lastLng = 69.2401;
                     updateUserLocation(currentUser, lastLat, lastLng);
                 }
             } else {
@@ -601,8 +555,6 @@
             if (!isAdmin) {
                 if (lastLat !== null && lastLng !== null) {
                     map.setView([lastLat, lastLng], 17);
-                } else {
-                    alert("Joylashuv aniqlanmadi. Xaritadan o'zingiz bosib belgilang.");
                 }
             } else {
                 let selectedUser = document.getElementById('userListSelect').value;
@@ -639,7 +591,6 @@
             }
         }
 
-        // Barcha foydalanuvchilarni eshitib borish va ro'yxatni yangilash
         function listenAllUsers() {
             db.ref('locations').on('value', snapshot => {
                 let allLocations = snapshot.val() || {};
