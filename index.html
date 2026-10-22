@@ -55,7 +55,7 @@
         }
         .auth-btn:active { transform: scale(0.97); }
 
-        /* Asosiy Menyu */
+        /* Asosiy Menyu (Faqat Admin uchun) */
         #menuScreen {
             background: radial-gradient(circle at 50% 30%, #0a1628 0%, #050b14 60%, #020408 100%);
             align-items: center; justify-content: center; padding: 24px; text-align: center;
@@ -129,7 +129,6 @@
         }
         .container-box { margin-top: 85px; max-width: 600px; margin-left: auto; margin-right: auto; width: 100%; }
         .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .gallery-img { width: 100%; height: 115px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(0, 162, 255, 0.25); }
 
         .view-card {
             background: rgba(13, 27, 42, 0.85); backdrop-filter: blur(14px); 
@@ -177,7 +176,7 @@
             <h2><i class="fa-solid fa-shield-halved"></i> Tizimga Kirish</h2>
             <div class="input-group">
                 <label><i class="fa-solid fa-user"></i> Taxallusingizni (Nik) kiriting:</label>
-                <input type="text" id="usernameInput" placeholder="Masalan: Abdulla yoki ADMIN">
+                <input type="text" id="usernameInput" placeholder="Masalan: Abdulla">
             </div>
             <button class="auth-btn" onclick="handleAuth()">
                 <i class="fa-solid fa-right-to-bracket"></i> Kirish
@@ -185,7 +184,7 @@
         </div>
     </div>
 
-    <!-- 2. Asosiy Menyu (Faqat Adminga chiqadi) -->
+    <!-- 2. Asosiy Menyu (Faqat Admin uchun) -->
     <div id="menuScreen" class="screen">
         <div class="menu-card">
             <div class="menu-title">
@@ -322,20 +321,28 @@
         let distanceLine = null;
         let currentUser = null;
         let isAdmin = false;
-        let lastLat = 41.2995, lastLng = 69.2401; // Boshlang'ich Toshkent koordinatasi
+        let lastLat = 41.2995, lastLng = 69.2401; // Toshkent default
         let isMapInitializedOnce = false;
+
+        // BOSH admin kalit so'zi (Faqat shu kiritilsagina Admin menyusi ochiladi)
+        const ADMIN_KEY = "ADMIN_MASTER"; 
 
         function handleAuth() {
             const val = document.getElementById('usernameInput').value.trim();
             if (!val) { alert("Iltimos, taxallusingizni kiriting!"); return; }
 
             currentUser = val;
-            if (currentUser.toUpperCase() === "ADMIN") {
+            
+            // Faqat va faqat ADMIN_MASTER kiritilsa Admin bo'lib kiradi
+            if (currentUser === ADMIN_KEY) {
                 isAdmin = true;
+                currentUser = "ADMIN";
                 startMenu();
             } else {
+                // Abdulla, bekzod va barcha boshqa nomlar - oddiy foydalanuvchi!
                 isAdmin = false;
-                // Foydalanuvchi bazaga darhol yoziladi
+                
+                // Darhol foydalanuvchini bazaga yozib xaritaga o'tkaziladi
                 updateUserLocation(currentUser, lastLat, lastLng);
                 openMapScreen();
             }
@@ -480,7 +487,7 @@
                 maxZoom: 18, maxNativeZoom: 18, opacity: 0.8
             }).addTo(map);
 
-            // Xaritaga bosganda o'z joylashuvini yangilash (Kompyuter va telefon uchun qulaylik)
+            // Xaritaga bosganda joylashuvni belgilash
             map.on('click', function(e) {
                 let targetLat = e.latlng.lat;
                 let targetLng = e.latlng.lng;
@@ -567,12 +574,24 @@
             }
         }
 
+        // Firebase va LocalStorage ikkalasiga birdek yozish
         function updateUserLocation(username, lat, lng) {
-            db.ref('locations/' + username).set({
+            let userObj = {
                 lat: lat,
                 lng: lng,
                 time: new Date().toLocaleTimeString()
-            });
+            };
+            
+            // Firebase
+            db.ref('locations/' + username).set(userObj);
+
+            // LocalStorage backup
+            try {
+                let localData = JSON.parse(localStorage.getItem('gps_all_users_loc') || '{}');
+                localData[username] = userObj;
+                localStorage.setItem('gps_all_users_loc', JSON.stringify(localData));
+            } catch(e) {}
+
             showMarker(username, lat, lng);
         }
 
@@ -591,9 +610,18 @@
             }
         }
 
+        // Admin uchun barcha foydalanuvchilarni eshitish va ro'yxatni chiqarish
         function listenAllUsers() {
+            // Firebase orqali eshitish
             db.ref('locations').on('value', snapshot => {
                 let allLocations = snapshot.val() || {};
+                
+                // LocalStorage'dan ham birlashtiramiz
+                try {
+                    let localData = JSON.parse(localStorage.getItem('gps_all_users_loc') || '{}');
+                    allLocations = { ...localData, ...allLocations };
+                } catch(e) {}
+
                 let select = document.getElementById('userListSelect');
                 let currentSelected = select.value;
                 select.innerHTML = '<option value="">Foydalanuvchini tanlang...</option>';
