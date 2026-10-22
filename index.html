@@ -5,33 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Anti-Theft Security Tracker</title>
     
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome Ikonkalar Kutubxonasi -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body, html { width: 100%; height: 100%; background: #030712; color: #fff; overflow: hidden; }
+        
         .screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         .active-screen { display: flex; flex-direction: column; }
+
+        /* Auth Screen */
         #authScreen { background: #090d16; z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .auth-card { background: #0d1b2a; border: 1px solid rgba(0, 162, 255, 0.2); padding: 30px; border-radius: 24px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
-        .auth-card h2 { margin-bottom: 24px; font-size: 22px; color: #00e676; }
+        .auth-card h2 { margin-bottom: 24px; font-size: 20px; color: #00e676; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .input-group { margin-bottom: 16px; text-align: left; }
         .input-group label { display: block; font-size: 12px; color: #8ab4f8; margin-bottom: 6px; }
         .input-group input { width: 100%; padding: 14px; background: #050a14; border: 1px solid rgba(0, 162, 255, 0.3); border-radius: 14px; color: #fff; font-size: 15px; outline: none; }
-        .auth-btn { width: 100%; padding: 14px; background: #00e676; border: none; border-radius: 14px; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; }
-        
+        .auth-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #00c853, #00e676); border: none; border-radius: 14px; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .auth-btn:active { transform: scale(0.97); }
+
+        /* Menyu */
         #menuScreen { background: #050b14; align-items: center; justify-content: center; padding: 24px; text-align: center; }
         .menu-card { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+        .menu-title { color: #8ab4f8; font-size: 18px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .menu-btn { padding: 15px 20px; background: #101e36; border: 1px solid rgba(0, 162, 255, 0.2); border-radius: 16px; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 16px; text-align: left; }
-        .menu-btn.primary { background: #00e676; color: #000; }
-        .menu-btn.danger { background: #d32f2f; color: #fff; }
+        .menu-btn.primary { background: linear-gradient(135deg, #00c853, #00e676); color: #000; border: none; }
+        .menu-btn.danger { background: linear-gradient(135deg, #b71c1c, #d32f2f); color: #fff; border: none; }
 
+        /* Xarita */
         #mapScreen { position: relative; width: 100%; height: 100%; }
         #map { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         .panel { position: absolute; top: 16px; left: 16px; right: 16px; z-index: 1000; background: rgba(10, 18, 32, 0.9); backdrop-filter: blur(14px); padding: 16px; border-radius: 16px; border: 1px solid rgba(0, 162, 255, 0.25); }
         .info { font-size: 13px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #14233c; color: #fff; border: none; padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; font-weight: 600; }
+        .back-btn { background: #14233c; color: #fff; border: 1px solid rgba(0, 162, 255, 0.25); padding: 8px 14px; border-radius: 10px; font-size: 12px; cursor: pointer; font-weight: 600; }
         .admin-box { margin-top: 12px; border-top: 1px solid rgba(0, 162, 255, 0.2); padding-top: 10px; }
         .user-select { width: 100%; padding: 10px; background: #050a14; color: #fff; border: 1px solid rgba(0, 162, 255, 0.25); border-radius: 10px; font-size: 13px; margin-top: 6px; outline: none; }
         .gps-center-btn { position: absolute; bottom: 30px; right: 20px; z-index: 1000; width: 56px; height: 56px; background: #0a1220; border: 2px solid #00e676; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #00e676; font-size: 22px; }
@@ -44,6 +53,7 @@
 </head>
 <body>
 
+    <!-- Kirish Oynasi -->
     <div id="authScreen" class="screen active-screen">
         <div class="auth-card">
             <h2><i class="fa-solid fa-shield-halved"></i> Tizimga Kirish</h2>
@@ -51,26 +61,28 @@
                 <label>Taxallusingizni (Nik) kiriting:</label>
                 <input type="text" id="usernameInput" placeholder="Masalan: Abdulla yoki ADMIN">
             </div>
-            <button class="auth-btn" onclick="handleAuth()">Kirish</button>
+            <button class="auth-btn" type="button" onclick="handleAuth()">Kirish</button>
         </div>
     </div>
 
+    <!-- Menyu (Faqat ADMIN uchun) -->
     <div id="menuScreen" class="screen">
         <div class="menu-card">
-            <div class="menu-title"><span id="menuUserName">--</span> (Admin)</div>
-            <button class="menu-btn primary" onclick="openMapScreen()"><i class="fa-solid fa-globe"></i> Xarita va Foydalanuvchilar</button>
-            <button class="menu-btn danger" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Chiqish</button>
+            <div class="menu-title"><i class="fa-solid fa-user-shield"></i> <span id="menuUserName">--</span> (Admin)</div>
+            <button class="menu-btn primary" type="button" onclick="openMapScreen()"><i class="fa-solid fa-globe"></i> Kuzatuv Xaritasi</button>
+            <button class="menu-btn danger" type="button" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Chiqish</button>
         </div>
     </div>
 
+    <!-- Xarita Oynasi -->
     <div id="mapScreen" class="screen">
         <div class="panel">
             <div class="info">
-                <span><strong id="mapUserName" style="color:#00e676;">--</strong></span>
-                <button class="back-btn" id="panelBackBtn" onclick="handleBackAction()">Orqaga</button>
+                <span><i class="fa-solid fa-user-tag"></i> <strong id="mapUserName" style="color:#00e676;">--</strong></span>
+                <button class="back-btn" id="panelBackBtn" type="button" onclick="handleBackAction()">Orqaga</button>
             </div>
             <div id="adminPanel" class="admin-box" style="display: none;">
-                <div class="info" style="color: #ff9800; font-weight: bold;">Ulangan Foydalanuvchilar</div>
+                <div class="info" style="color: #ff9800; font-weight: bold;"><i class="fa-solid fa-users"></i> Foydalanuvchilar Ro'yxati</div>
                 <select id="userListSelect" class="user-select" onchange="focusUserOnMap()">
                     <option value="">Foydalanuvchini tanlang...</option>
                 </select>
@@ -82,167 +94,177 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map = null, markers = {}, currentUser = null, isAdmin = false;
-        let lastLat = 41.2995, lastLng = 69.2401; // Toshkent default
+        var map = null;
+        var markers = {};
+        var currentUser = null;
+        var isAdmin = false;
+        var lastLat = 41.2995;
+        var lastLng = 69.2401;
 
         function handleAuth() {
-            const val = document.getElementById('usernameInput').value.trim();
-            if (!val) { alert("Ismingizni kiriting!"); return; }
-            currentUser = val;
-            
-            if (currentUser.toUpperCase() === "ADMIN") {
+            var inputVal = document.getElementById('usernameInput').value;
+            if (!inputVal) {
+                alert("Iltimos, ismingizni kiriting!");
+                return;
+            }
+
+            currentUser = inputVal.trim();
+
+            if (currentUser === "ADMIN") {
                 isAdmin = true;
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-                document.getElementById('menuScreen').classList.add('active-screen');
+                showScreen('menuScreen');
                 document.getElementById('menuUserName').innerText = currentUser;
             } else {
                 isAdmin = false;
-                updateUserLocation(currentUser, lastLat, lastLng);
+                saveUserPosition(currentUser, lastLat, lastLng);
                 openMapScreen();
             }
         }
 
-        function logout() {
-            currentUser = null; isAdmin = false;
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('authScreen').classList.add('active-screen');
+        function showScreen(screenId) {
+            document.getElementById('authScreen').classList.remove('active-screen');
+            document.getElementById('menuScreen').classList.remove('active-screen');
+            document.getElementById('mapScreen').classList.remove('active-screen');
+            document.getElementById(screenId).classList.add('active-screen');
         }
 
-        function openMenuScreen() {
-            if (!isAdmin) { logout(); return; }
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('menuScreen').classList.add('active-screen');
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            showScreen('authScreen');
         }
 
         function handleBackAction() {
-            if (isAdmin) openMenuScreen(); else logout();
+            if (isAdmin) {
+                showScreen('menuScreen');
+            } else {
+                logout();
+            }
         }
 
         function openMapScreen() {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
-            document.getElementById('mapScreen').classList.add('active-screen');
+            showScreen('mapScreen');
             document.getElementById('mapUserName').innerText = currentUser;
 
+            var adminPanel = document.getElementById('adminPanel');
+            var backBtn = document.getElementById('panelBackBtn');
+
             if (isAdmin) {
-                document.getElementById('adminPanel').style.display = 'block';
-                document.getElementById('panelBackBtnسمبر' || 'panelBackBtn').innerText = 'Menyu';
+                adminPanel.style.display = 'block';
+                backBtn.innerText = 'Menyu';
             } else {
-                document.getElementById('adminPanel').style.display = 'none';
-                document.getElementById('panelBackBtn').innerText = 'Chiqish';
+                adminPanel.style.display = 'none';
+                backBtn.innerText = 'Chiqish';
             }
 
-            if (!map) initMap(); else setTimeout(() => map.invalidateSize(), 150);
+            if (!map) {
+                initMap();
+            } else {
+                setTimeout(function() { map.invalidateSize(); }, 200);
+            }
         }
 
         function initMap() {
-            map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([lastLat, lastLng], 15);
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18 }).addTo(map);
+            map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([lastLat, lastLng], 14);
+            
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
+                maxZoom: 18 
+            }).addTo(map);
 
-            // Xaritaga bosganda joylashuvni yangilash (kompyuter uchun)
             map.on('click', function(e) {
                 if (!isAdmin) {
-                    lastLat = e.latlng.lat; lastLng = e.latlng.lng;
-                    updateUserLocation(currentUser, lastLat, lastLng);
-                    alert("Joylashuvingiz yuborildi!");
+                    lastLat = e.latlng.lat;
+                    lastLng = e.latlng.lng;
+                    saveUserPosition(currentUser, lastLat, lastLng);
+                    alert("Joylashuvingiz xaritada belgilandi!");
                 }
             });
 
             if (!isAdmin) {
                 if ("geolocation" in navigator) {
-                    navigator.geolocation.watchPosition(pos => {
-                        lastLat = pos.coords.latitude; lastLng = pos.coords.longitude;
-                        updateUserLocation(currentUser, lastLat, lastLng);
-                    }, () => updateUserLocation(currentUser, lastLat, lastLng), { enableHighAccuracy: true });
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        lastLat = pos.coords.latitude;
+                        lastLng = pos.coords.longitude;
+                        map.setView([lastLat, lastLng], 16);
+                        saveUserPosition(currentUser, lastLat, lastLng);
+                    }, function() {
+                        saveUserPosition(currentUser, lastLat, lastLng);
+                    });
+                } else {
+                    saveUserPosition(currentUser, lastLat, lastLng);
                 }
             } else {
-                // Admin boshqalarni tinglaydi
                 startAdminSync();
             }
-            setTimeout(() => map.invalidateSize(), 200);
+
+            setTimeout(function() { map.invalidateSize(); }, 200);
         }
 
         function centerToMyLocation() {
-            if (!isAdmin && lastLat && lastLng) map.setView([lastLat, lastLng], 17);
-            else if (isAdmin) {
-                let sel = document.getElementById('userListSelect').value;
-                if (sel && markers[sel]) map.setView(markers[sel].getLatLng(), 17);
+            if (!isAdmin) {
+                map.setView([lastLat, lastLng], 16);
+            } else {
+                var selectedUser = document.getElementById('userListSelect').value;
+                if (selectedUser && markers[selectedUser]) {
+                    map.setView(markers[selectedUser].getLatLng(), 16);
+                }
             }
         }
 
-        // Brauzerlararo ma'lumot almashish (BroadcastChannel orqali lokal yoki server)
-        function updateUserLocation(username, lat, lng) {
-            let data = { username, lat, lng, time: new Date().toLocaleTimeString() };
+        function saveUserPosition(username, lat, lng) {
+            var userObj = { lat: lat, lng: lng, time: new Date().toLocaleTimeString() };
             
-            // LocalStorage orqali bir xil brauzerda yoki tarmoqda sinxronizatsiya
             try {
-                let all = JSON.parse(localStorage.getItem('gps_tracker_users') || '{}');
-                all[username] = data;
-                localStorage.setItem('gps_tracker_users', JSON.stringify(all));
+                var stored = JSON.parse(localStorage.getItem('app_users_data') || '{}');
+                stored[username] = userObj;
+                localStorage.setItem('app_users_data', JSON.stringify(stored));
             } catch(e) {}
 
-            // BroadcastChannel orqali bir xil wi-fi/tarmoqdagi ochiq oynalarga darhol uzatish
-            if (window.BroadcastChannel) {
-                const bc = new BroadcastChannel('gps_tracker_chan');
-                bc.postMessage(data);
-            }
-
-            showMarker(username, lat, lng);
+            displayMarker(username, lat, lng);
         }
 
-        function showMarker(username, lat, lng) {
+        function displayMarker(username, lat, lng) {
             if (!markers[username]) {
-                markers[username] = L.marker([lat, lng], { 
-                    icon: L.divIcon({ 
-                        className: 'pulse-marker', 
-                        html: '<div class="pulse-marker-container"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>', 
-                        iconSize: [44,44], 
-                        iconAnchor: [22,22] 
-                    }) 
-                }).addTo(map).bindPopup(`<b>${username}</b>`);
+                var pulseIcon = L.divIcon({
+                    className: 'pulse-marker',
+                    html: '<div class="pulse-marker-container"><div class="pulse-ring"></div><div class="pulse-dot"></div></div>',
+                    iconSize: [44, 44],
+                    iconAnchor: [22, 22]
+                });
+                markers[username] = L.marker([lat, lng], { icon: pulseIcon }).addTo(map).bindPopup('<b>' + username + '</b>');
             } else {
                 markers[username].setLatLng([lat, lng]);
             }
         }
 
         function startAdminSync() {
-            // Har 1 sekundda foydalanuvchilar ro'yxatini yangilab turish
-            setInterval(() => {
+            setInterval(function() {
                 try {
-                    let all = JSON.parse(localStorage.getItem('gps_tracker_users') || '{}');
-                    updateUserSelect(all);
+                    var stored = JSON.parse(localStorage.getItem('app_users_data') || '{}');
+                    var select = document.getElementById('userListSelect');
+                    var currentVal = select.value;
+                    
+                    select.innerHTML = '<option value="">Foydalanuvchini tanlang...</option>';
+                    
+                    for (var uName in stored) {
+                        var uData = stored[uName];
+                        displayMarker(uName, uData.lat, uData.lng);
+
+                        var opt = document.createElement('option');
+                        opt.value = uName;
+                        opt.innerText = uName + ' (' + uData.time + ')';
+                        select.appendChild(opt);
+                    }
+                    select.value = currentVal;
                 } catch(e) {}
             }, 1000);
-
-            if (window.BroadcastChannel) {
-                const bc = new BroadcastChannel('gps_tracker_chan');
-                bc.onmessage = (event) => {
-                    let data = event.data;
-                    if (data && data.username) {
-                        showMarker(data.username, data.lat, data.lng);
-                    }
-                };
-            }
-        }
-
-        function updateUserSelect(allLocations) {
-            let select = document.getElementById('userListSelect');
-            let cur = select.value;
-            select.innerHTML = '<option value="">Foydalanuvchini tanlang...</option>';
-            for (let uname in allLocations) {
-                let data = allLocations[uname];
-                showMarker(uname, data.lat, data.lng);
-                let opt = document.createElement('option');
-                opt.value = uname; opt.innerText = `${uname} (${data.time})`;
-                select.appendChild(opt);
-            }
-            select.value = cur;
         }
 
         function focusUserOnMap() {
-            let sel = document.getElementById('userListSelect').value;
-            if (sel && markers[sel]) {
-                map.setView(markers[sel].getLatLng(), 18);
-                markers[sel].openPopup();
+            var selectedUser = document.getElementById('userListSelect').value;
+            if (selectedUser && markers[selectedUser]) {
+                map.setView(markers[selectedUser].getLatLng(), 17);
+                markers[selectedUser].openPopup();
             }
         }
     </script>
